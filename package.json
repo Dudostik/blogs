@@ -26,6 +26,7 @@
   ],
   "dependencies": {
     "@prisma/client": "^5.20.0",
+    "@radix-ui/react-popover": "1.1.2",
     "@remix-run/css-bundle": "^2.13.1",
     "@remix-run/node": "^2.13.1",
     "@remix-run/react": "^2.13.1",

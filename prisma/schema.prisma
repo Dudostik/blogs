@@ -25,6 +25,7 @@ model Password {
   userId String @unique
 }
 
+// rename Note to Post
 model Note {
   id    String @id @default(cuid())
   title String
