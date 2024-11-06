@@ -1,4 +1,4 @@
-import type { User, Note as Post } from "@prisma/client";
+import type { User, Post } from "@prisma/client";
 
 import { prisma } from "~/db.server";
 
@@ -14,7 +14,7 @@ export function getPost({
   });
 }
 
-export function getNoteListItems({ userId }: { userId: User["id"] }) {
+export function getPostListItems({ userId }: { userId: User["id"] }) {
   return prisma.note.findMany({
     where: { userId },
     select: { id: true, title: true },
@@ -22,7 +22,7 @@ export function getNoteListItems({ userId }: { userId: User["id"] }) {
   });
 }
 
-export function createNote({
+export function createPost({
   body,
   title,
   userId,
@@ -42,7 +42,7 @@ export function createNote({
   });
 }
 
-export function deleteNote({
+export function deletePost({
   id,
   userId,
 }: Pick<Post, "id"> & { userId: User["id"] }) {

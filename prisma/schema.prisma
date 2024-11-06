@@ -8,32 +8,41 @@ generator client {
 }
 
 model User {
-  id    String @id @default(cuid())
+  id    Int    @id @default(autoincrement())
   email String @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   password Password?
-  notes    Note[]
+  Post     Post[]
+  Comment  Comment[]
 }
 
 model Password {
   hash String
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId String @unique
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId Int  @unique
 }
 
-// rename Note to Post
-model Note {
-  id    String @id @default(cuid())
-  title String
-  body  String
+model Post {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  comments    Comment[]
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId      Int
+}
 
+model Comment {
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId String
+  post      Post?    @relation(fields: [postId], references: [id])
+  postId    Int?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId    Int
 }
