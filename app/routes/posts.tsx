@@ -8,7 +8,8 @@ import { useUser } from "~/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
-  const postListItems = await getPostListItems({ userId });
+  // const postListItems = await getPostListItems({ userId });
+  const postListItems: any[] = [];
   return json({ postListItems: postListItems });
 };
 
@@ -51,7 +52,7 @@ export default function PostsPage() {
                     className={({ isActive }) =>
                       `block border-b p-4 text-xl ${isActive ? "bg-white" : ""}`
                     }
-                    to={post.id}
+                    to={post.id.toString()}
                   >
                     📝 {post.title}
                   </NavLink>

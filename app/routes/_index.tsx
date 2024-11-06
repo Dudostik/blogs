@@ -9,8 +9,8 @@ export const meta: MetaFunction = () => [{ title: "Remix Notes" }];
 export default function Index() {
   const user = useOptionalUser();
   return (
-    <Popover content="Popover">
-      <button>Click me</button>
-    </Popover>
+    <div>
+      Test
+    </div>
   );
 }

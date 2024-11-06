@@ -8,14 +8,14 @@ export function getPost({
 }: Pick<Post, "id"> & {
   userId: User["id"];
 }) {
-  return prisma.note.findFirst({
-    select: { id: true, body: true, title: true },
+  return prisma.post.findFirst({
+    select: { id: true, description: true, title: true },
     where: { id, userId },
   });
 }
 
 export function getPostListItems({ userId }: { userId: User["id"] }) {
-  return prisma.note.findMany({
+  return prisma.post.findMany({
     where: { userId },
     select: { id: true, title: true },
     orderBy: { updatedAt: "desc" },
@@ -23,16 +23,16 @@ export function getPostListItems({ userId }: { userId: User["id"] }) {
 }
 
 export function createPost({
-  body,
+  description,
   title,
   userId,
-}: Pick<Post, "body" | "title"> & {
+}: Pick<Post, "description" | "title"> & {
   userId: User["id"];
 }) {
-  return prisma.note.create({
+  return prisma.post.create({
     data: {
       title,
-      body,
+      description,
       user: {
         connect: {
           id: userId,
@@ -46,7 +46,7 @@ export function deletePost({
   id,
   userId,
 }: Pick<Post, "id"> & { userId: User["id"] }) {
-  return prisma.note.deleteMany({
+  return prisma.post.deleteMany({
     where: { id, userId },
   });
 }
