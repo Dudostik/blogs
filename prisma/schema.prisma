@@ -8,8 +8,8 @@ generator client {
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  email String @unique
+  id    String    @id @default(cuid())
+  email String    @unique 
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -23,7 +23,7 @@ model Password {
   hash String
 
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId Int  @unique
+  userId String  @unique
 }
 
 model Post {
@@ -34,7 +34,7 @@ model Post {
   updatedAt   DateTime  @updatedAt
   comments    Comment[]
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId      Int
+  userId      String
 }
 
 model Comment {
@@ -44,5 +44,5 @@ model Comment {
   post      Post?    @relation(fields: [postId], references: [id])
   postId    Int?
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId    Int
+  userId    String
 }
