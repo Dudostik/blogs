@@ -59,7 +59,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     redirectTo,
     remember: remember === "on" ? true : false,
     request,
-    userId: user.id,
+    userId: user.id
   });
 };
 
@@ -101,6 +101,7 @@ export default function LoginPage() {
                 id="email"
                 required
                 // eslint-disable-next-line jsx-a11y/no-autofocus
+                defaultValue={'test@test.com'}
                 autoFocus={true}
                 name="email"
                 type="email"
@@ -130,6 +131,7 @@ export default function LoginPage() {
                 ref={passwordRef}
                 name="password"
                 type="password"
+                defaultValue={12345678}
                 autoComplete="current-password"
                 aria-invalid={actionData?.errors?.password ? true : undefined}
                 aria-describedby="password-error"
