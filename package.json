@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "remix build",
-    "dev": "remix dev -c \"npm run dev:serve\"",
+    "dev": "remix dev",
     "dev:serve": "NODE_OPTIONS=\"--import ./mocks/index.js\" remix-serve ./build/index.js",
     "format": "prettier --write .",
     "lint": "eslint --cache --cache-location ./node_modules/.cache/eslint .",
@@ -25,6 +25,7 @@
     "/public/build"
   ],
   "dependencies": {
+    "@babel/preset-react": "^7.25.9",
     "@prisma/client": "^5.20.0",
     "@radix-ui/react-popover": "1.1.2",
     "@remix-run/css-bundle": "^2.13.1",

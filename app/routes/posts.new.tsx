@@ -11,7 +11,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   const formData = await request.formData();
   const title = formData.get("title");
-  const body = formData.get("body");
+  const description = formData.get("body");
 
   if (typeof title !== "string" || title.length === 0) {
     return json(
@@ -20,14 +20,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     );
   }
 
-  if (typeof body !== "string" || body.length === 0) {
+  if (typeof description !== "string" || description.length === 0) {
     return json(
       { errors: { body: "Body is required", title: null } },
       { status: 400 },
     );
   }
 
-  const post = await createPost({ body, title, userId });
+  const post = await createPost({ description, title, userId });
 
   return redirect(`/posts/${post.id}`);
 };

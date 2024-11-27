@@ -50,3 +50,21 @@ export function deletePost({
     where: { id, userId },
   });
 }
+
+export function updatePost({
+  id,
+  userId,
+  title,
+  description,
+}: { userId: User["id"] } & Pick<Post, "id" | "title" | "description">) {
+  return prisma.post.update({
+    where: {
+      id,
+      userId,
+    },
+    data: {
+      title,
+      description,
+    },
+  });
+}

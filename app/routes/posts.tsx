@@ -8,8 +8,8 @@ import { useUser } from "~/utils";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
-  // const postListItems = await getPostListItems({ userId });
-  const postListItems: any[] = [];
+  const postListItems = await getPostListItems({ userId });
+  console.log(postListItems);
   return json({ postListItems: postListItems });
 };
 
