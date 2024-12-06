@@ -1,5 +1,4 @@
 import type { LoaderFunctionArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
 import { Form, Link, NavLink, Outlet, useLoaderData } from "@remix-run/react";
 
 import { getPostListItems as getPostListItems } from "~/models/post.server";
@@ -10,7 +9,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
   const postListItems = await getPostListItems({ userId });
   console.log(postListItems);
-  return json({ postListItems: postListItems });
+  return new Response(JSON.stringify({ postListItems: postListItems }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
 };
 
 export default function PostsPage() {

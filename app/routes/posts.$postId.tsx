@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import {
   Form,
   isRouteErrorResponse,
@@ -11,7 +11,9 @@ import { useEffect, useRef, useState } from "react";
 import invariant from "tiny-invariant";
 
 import { deletePost, getPost, updatePost } from "~/models/post.server";
+import { getCommentsByPostId, createComment } from "~/models/comment.server";
 import { requireUserId } from "~/session.server";
+import { Input } from "~/ui";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
@@ -21,7 +23,14 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   if (!post) {
     throw new Response("Not Found", { status: 404 });
   }
-  return json({ post: post });
+
+  const comments = (await getCommentsByPostId(params.postId)) ?? [];
+
+  console.log(post, comments);
+
+  return new Response(JSON.stringify({ post: post, comments: comments }), {
+    headers: { "Content-Type": "application/json" },
+  });
 };
 
 export const action = async ({ params, request }: ActionFunctionArgs) => {
@@ -31,21 +40,58 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
 
   const formData = await request.formData();
 
+  if (formData.get("request-type") === "create-comment") {
+    const content = formData.get("content")?.toString();
+
+    if (typeof content !== "string" || content.length === 0) {
+      return new Response(
+        JSON.stringify({
+          errors: {
+            content: "Content is required",
+            title: null,
+            description: null,
+          },
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
+    try {
+      const comment = await createComment({
+        postId: params.postId,
+        userId,
+        content,
+      });
+
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 201,
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      console.log(error);
+      return new Response(null, { status: 500 });
+    }
+  }
+
   if (formData.get("request-type") === "edit") {
     const title = formData.get("title")?.toString();
     const description = formData.get("description")?.toString();
 
     if (typeof title !== "string" || title.length === 0) {
-      return json(
-        { errors: { description: null, title: "Title is required" } },
-        { status: 400 },
+      return new Response(
+        JSON.stringify({
+          errors: { description: null, title: "Title is required" },
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
 
     if (typeof description !== "string" || description.length === 0) {
-      return json(
-        { errors: { description: "Description is required", title: null } },
-        { status: 400 },
+      return new Response(
+        JSON.stringify({
+          errors: { description: "Description is required", title: null },
+        }),
+        { status: 400, headers: { "Content-Type": "application/json" } },
       );
     }
 
@@ -57,9 +103,12 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
         description,
       });
 
-      return json({ post }, { status: 200 });
+      return new Response(JSON.stringify({ post }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
     } catch (error) {
-      return json(null, { status: 500 });
+      return new Response(null, { status: 500 });
     }
   } else {
     await deletePost({ id: params.postId, userId });
@@ -72,24 +121,28 @@ export default function PostDetailsPage() {
   const [editMode, setEditMode] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
   const descriptionRef = useRef<HTMLInputElement>(null);
+  const contentRef = useRef<HTMLTextAreaElement>(null);
   const actionData = useActionData<typeof action>();
 
   useEffect(() => {
+    console.log(actionData);
     if (!actionData) {
       return;
     }
 
-    if ("errors" in actionData && actionData?.errors?.title) {
-      titleRef.current?.focus();
-    } else if ("errors" in actionData && actionData?.errors?.description) {
-      descriptionRef.current?.focus();
-    } else {
-      setEditMode(false);
+    if ("errors" in actionData) {
+      if ("title" in actionData.errors) {
+        titleRef.current?.focus();
+      } else if ("description" in actionData.errors) {
+        descriptionRef.current?.focus();
+      } else {
+        setEditMode(false);
+      }
     }
   }, [actionData]);
 
   const getErrorMessage = (
-    control: "title" | "description",
+    control: "title" | "description" | "content",
     message: string = "",
   ) => {
     if (actionData && "errors" in actionData && control in actionData) {
@@ -102,19 +155,16 @@ export default function PostDetailsPage() {
       {editMode ? (
         <Form method="post">
           <input value="edit" name="request-type" readOnly hidden />
-          <div>
-            <label className="flex w-full flex-col gap-1">
-              <span>Title: </span>
-              <input
-                ref={titleRef}
-                defaultValue={data.post.title}
-                name="title"
-                className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
-                aria-invalid={getErrorMessage("title") ? true : undefined}
-                aria-errormessage={getErrorMessage("title", "title-error")}
-              />
-            </label>
-          </div>
+
+          <Input
+            label="Title"
+            ref={titleRef}
+            defaultValue={data.post.title}
+            name="title"
+            invalid={!!getErrorMessage("title")}
+            errorMessage={getErrorMessage("title", "title-error")}
+          />
+
           <div>
             <label className="flex w-full flex-col gap-1">
               <span>Description: </span>
@@ -151,6 +201,48 @@ export default function PostDetailsPage() {
               className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
             >
               Delete
+            </button>
+          </Form>
+          <hr className="my-4" />
+          <h4 className="text-xl font-bold">Comments</h4>
+          <div className="space-y-4">
+            {data.comments && data.comments.length === 0 ? (
+              <p>No comments yet.</p>
+            ) : (
+              data.comments?.map((comment) => (
+                <div key={comment.id}>
+                  <p>{comment.content}</p>
+                  <span className="text-sm text-gray-500">
+                    Posted on {comment.createdAt}
+                  </span>
+                </div>
+              ))
+            )}
+          </div>
+
+          <Form method="post">
+            <input value="create-comment" name="request-type" readOnly hidden />
+            <div>
+              <label className="flex w-full flex-col gap-1">
+                <span>Comment: </span>
+                <textarea
+                  ref={contentRef}
+                  name="content"
+                  rows={4}
+                  className="w-full rounded-md border-2 border-blue-500 p-3"
+                  aria-invalid={getErrorMessage("content") ? true : undefined}
+                  aria-errormessage={getErrorMessage(
+                    "content",
+                    "content-error",
+                  )}
+                />
+              </label>
+            </div>
+            <button
+              type="submit"
+              className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
+            >
+              Add Comment
             </button>
           </Form>
         </div>

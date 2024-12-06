@@ -3,7 +3,7 @@ import type {
   LoaderFunctionArgs,
   MetaFunction,
 } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { Form, Link, useActionData, useSearchParams } from "@remix-run/react";
 import { useEffect, useRef } from "react";
 
@@ -15,7 +15,10 @@ import { safeRedirect, validateEmail } from "~/utils";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await getUserId(request);
   if (userId) return redirect("/");
-  return json({});
+
+  return new Response(JSON.stringify({}), {
+    headers: { "Content-Type": "application/json" },
+  });
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -26,32 +29,38 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const remember = formData.get("remember");
 
   if (!validateEmail(email)) {
-    return json(
-      { errors: { email: "Email is invalid", password: null } },
-      { status: 400 },
+    return new Response(
+      JSON.stringify({ errors: { email: "Email is invalid", password: null } }),
+      { status: 400, headers: { "Content-Type": "application/json" } },
     );
   }
 
   if (typeof password !== "string" || password.length === 0) {
-    return json(
-      { errors: { email: null, password: "Password is required" } },
-      { status: 400 },
+    return new Response(
+      JSON.stringify({
+        errors: { email: null, password: "Password is required" },
+      }),
+      { status: 400, headers: { "Content-Type": "application/json" } },
     );
   }
 
   if (password.length < 8) {
-    return json(
-      { errors: { email: null, password: "Password is too short" } },
-      { status: 400 },
+    return new Response(
+      JSON.stringify({
+        errors: { email: null, password: "Password is too short" },
+      }),
+      { status: 400, headers: { "Content-Type": "application/json" } },
     );
   }
 
   const user = await verifyLogin(email, password);
 
   if (!user) {
-    return json(
-      { errors: { email: "Invalid email or password", password: null } },
-      { status: 400 },
+    return new Response(
+      JSON.stringify({
+        errors: { email: "Invalid email or password", password: null },
+      }),
+      { status: 400, headers: { "Content-Type": "application/json" } },
     );
   }
 
@@ -59,7 +68,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     redirectTo,
     remember: remember === "on" ? true : false,
     request,
-    userId: user.id
+    userId: user.id,
   });
 };
 
@@ -101,7 +110,7 @@ export default function LoginPage() {
                 id="email"
                 required
                 // eslint-disable-next-line jsx-a11y/no-autofocus
-                defaultValue={'test@test.com'}
+                defaultValue={"test@test.com"}
                 autoFocus={true}
                 name="email"
                 type="email"

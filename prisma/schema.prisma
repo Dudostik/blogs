@@ -45,4 +45,5 @@ model Comment {
   postId    String?
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   userId    String
+  content   String
 }

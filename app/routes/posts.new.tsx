@@ -1,5 +1,5 @@
 import type { ActionFunctionArgs } from "@remix-run/node";
-import { json, redirect } from "@remix-run/node";
+import { redirect } from "@remix-run/node";
 import { Form, useActionData } from "@remix-run/react";
 import { useEffect, useRef } from "react";
 
@@ -14,16 +14,16 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const description = formData.get("body");
 
   if (typeof title !== "string" || title.length === 0) {
-    return json(
-      { errors: { body: null, title: "Title is required" } },
-      { status: 400 },
+    return new Response(
+      JSON.stringify({ errors: { body: null, title: "Title is required" } }),
+      { status: 400, headers: { "Content-Type": "application/json" } },
     );
   }
 
   if (typeof description !== "string" || description.length === 0) {
-    return json(
-      { errors: { body: "Body is required", title: null } },
-      { status: 400 },
+    return new Response(
+      JSON.stringify({ errors: { body: "Body is required", title: null } }),
+      { status: 400, headers: { "Content-Type": "application/json" } },
     );
   }
 
