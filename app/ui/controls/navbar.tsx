@@ -1,4 +1,5 @@
 import { Link } from "@remix-run/react";
+
 import type { User } from "~/models/user.server";
 
 interface NavBarProps {

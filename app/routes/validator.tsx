@@ -1,4 +1,5 @@
-// zod https://zod.dev/
+// TODO zod https://zod.dev/
+/*
 const validateForm = (title: string | null, body: string | null) => {
   const errors: { title?: string; body?: string } = {};
 
@@ -12,3 +13,4 @@ const validateForm = (title: string | null, body: string | null) => {
 
   return errors;
 };
+*/

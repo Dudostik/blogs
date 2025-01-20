@@ -1,5 +1,4 @@
 // index.jsx
-import * as React from "react";
 import * as RadixPopover from "@radix-ui/react-popover";
 import "./styles.css";
 import { PropsWithChildren } from "react";
@@ -11,7 +10,9 @@ export const Popover = ({
   content: string;
 }>) => (
   <RadixPopover.Root>
-    <RadixPopover.Trigger className="PopoverTrigger">{children}</RadixPopover.Trigger>
+    <RadixPopover.Trigger className="PopoverTrigger">
+      {children}
+    </RadixPopover.Trigger>
     <RadixPopover.Portal>
       <RadixPopover.Content className="PopoverContent">
         {content}
@@ -20,4 +21,3 @@ export const Popover = ({
     </RadixPopover.Portal>
   </RadixPopover.Root>
 );
-

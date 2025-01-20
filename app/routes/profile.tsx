@@ -1,12 +1,13 @@
 import { LoaderFunctionArgs, ActionFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
+import { useState } from "react";
+
 import {
   getUserById,
   updateUserName,
   updateUserPassword,
 } from "~/models/user.server";
 import { requireUserId } from "~/session.server";
-import { useState } from "react";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);

@@ -10,8 +10,8 @@ import {
 import { useEffect, useRef, useState } from "react";
 import invariant from "tiny-invariant";
 
-import { deletePost, getPost, updatePost } from "~/models/post.server";
 import { getCommentsByPostId, createComment } from "~/models/comment.server";
+import { deletePost, getPost, updatePost } from "~/models/post.server";
 import { requireUserId } from "~/session.server";
 import { Input } from "~/ui";
 import { Button } from "~/ui/controls/button";
@@ -138,7 +138,7 @@ export default function PostDetailsPage() {
 
   const getErrorMessage = (
     control: "title" | "description" | "content",
-    message: string = "",
+    message = "",
   ) => {
     if (actionData && "errors" in actionData && control in actionData) {
       return message;

@@ -115,7 +115,7 @@ export default function LoginPage() {
                 required
                 // eslint-disable-next-line jsx-a11y/no-autofocus
                 defaultValue={"test@test.com"}
-                autoFocus={true}
+                // autoFocus={true}
                 name="email"
                 type="email"
                 autoComplete="email"

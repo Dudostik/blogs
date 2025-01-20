@@ -1,5 +1,5 @@
 const handleErrorResponse = (
-  errors: { [key: string | number | symbol]: unknown },
+  errors: Record<string | number | symbol, unknown>,
   status: number,
 ) => {
   return new Response(JSON.stringify({ errors }), {

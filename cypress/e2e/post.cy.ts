@@ -41,11 +41,11 @@ describe('Post Management', () => {
     it('should edit an existing post', () => {
       cy.visit('/posts/1');
       cy.contains('Edit').click();
-  
+    
       cy.get('input[name="title"]').clear().type('Updated Title');
       cy.get('input[name="description"]').clear().type('Updated Description');
       cy.get('button[type="submit"]').click();
-  
+    
       cy.contains('Updated Title');
       cy.contains('Updated Description');
     });
