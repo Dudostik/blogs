@@ -22,6 +22,8 @@ describe("login and register", () => {
     cy.findByRole("button", { name: /create account/i }).click();
 
     cy.findByRole("link", { name: /posts/i }).click();
+
+
     cy.findByRole("button", { name: /logout/i }).click();
     cy.findByRole("link", { name: /log in/i });
   });

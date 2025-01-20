@@ -9,6 +9,7 @@ import { useEffect, useRef } from "react";
 
 import { verifyLogin } from "~/models/user.server";
 import { createUserSession, getUserId } from "~/session.server";
+import { Button } from "~/ui/controls/button";
 import { Popover } from "~/ui/popover/popover";
 import { safeRedirect, validateEmail } from "~/utils";
 
@@ -29,38 +30,41 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const remember = formData.get("remember");
 
   if (!validateEmail(email)) {
-    return new Response(
-      JSON.stringify({ errors: { email: "Email is invalid", password: null } }),
-      { status: 400, headers: { "Content-Type": "application/json" } },
+    return handleErrorResponse(
+      { password: null, email: "Email is invalid" },
+      400,
     );
   }
 
   if (typeof password !== "string" || password.length === 0) {
-    return new Response(
-      JSON.stringify({
-        errors: { email: null, password: "Password is required" },
-      }),
-      { status: 400, headers: { "Content-Type": "application/json" } },
+    return handleErrorResponse(
+      {
+        password: "Password is required",
+        email: null,
+      },
+      400,
     );
   }
 
   if (password.length < 8) {
-    return new Response(
-      JSON.stringify({
-        errors: { email: null, password: "Password is too short" },
-      }),
-      { status: 400, headers: { "Content-Type": "application/json" } },
+    return handleErrorResponse(
+      {
+        password: "Password is too short",
+        email: null,
+      },
+      400,
     );
   }
 
   const user = await verifyLogin(email, password);
 
   if (!user) {
-    return new Response(
-      JSON.stringify({
-        errors: { email: "Invalid email or password", password: null },
-      }),
-      { status: 400, headers: { "Content-Type": "application/json" } },
+    return handleErrorResponse(
+      {
+        password: null,
+        email: "Invalid email or password",
+      },
+      400,
     );
   }
 
@@ -155,12 +159,7 @@ export default function LoginPage() {
           </div>
 
           <input type="hidden" name="redirectTo" value={redirectTo} />
-          <button
-            type="submit"
-            className="w-full rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
-          >
-            Log in
-          </button>
+          <Button label="Log in" type="submit" />
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <input

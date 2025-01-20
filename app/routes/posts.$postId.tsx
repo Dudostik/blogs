@@ -14,6 +14,7 @@ import { deletePost, getPost, updatePost } from "~/models/post.server";
 import { getCommentsByPostId, createComment } from "~/models/comment.server";
 import { requireUserId } from "~/session.server";
 import { Input } from "~/ui";
+import { Button } from "~/ui/controls/button";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
@@ -26,11 +27,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 
   const comments = (await getCommentsByPostId(params.postId)) ?? [];
 
-  console.log(post, comments);
-
-  return new Response(JSON.stringify({ post: post, comments: comments }), {
-    headers: { "Content-Type": "application/json" },
-  });
+  return { post, comments };
 };
 
 export const action = async ({ params, request }: ActionFunctionArgs) => {
@@ -42,17 +39,16 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
 
   if (formData.get("request-type") === "create-comment") {
     const content = formData.get("content")?.toString();
+    formData.set("content", "");
 
     if (typeof content !== "string" || content.length === 0) {
-      return new Response(
-        JSON.stringify({
-          errors: {
-            content: "Content is required",
-            title: null,
-            description: null,
-          },
-        }),
-        { status: 400, headers: { "Content-Type": "application/json" } },
+      return handleErrorResponse(
+        {
+          content: "Content is required",
+          title: null,
+          description: null,
+        },
+        400,
       );
     }
 
@@ -78,20 +74,19 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
     const description = formData.get("description")?.toString();
 
     if (typeof title !== "string" || title.length === 0) {
-      return new Response(
-        JSON.stringify({
-          errors: { description: null, title: "Title is required" },
-        }),
-        { status: 400, headers: { "Content-Type": "application/json" } },
+      return handleErrorResponse(
+        { title: "Title is required", body: null },
+        400,
       );
     }
 
     if (typeof description !== "string" || description.length === 0) {
-      return new Response(
-        JSON.stringify({
-          errors: { description: "Description is required", title: null },
-        }),
-        { status: 400, headers: { "Content-Type": "application/json" } },
+      return handleErrorResponse(
+        {
+          description: "Description is required",
+          title: null,
+        },
+        400,
       );
     }
 
@@ -165,44 +160,33 @@ export default function PostDetailsPage() {
             errorMessage={getErrorMessage("title", "title-error")}
           />
 
-          <div>
-            <label className="flex w-full flex-col gap-1">
-              <span>Description: </span>
-              <input
-                ref={descriptionRef}
-                defaultValue={data.post.description ?? ""}
-                name="description"
-                className="flex-1 rounded-md border-2 border-blue-500 px-3 text-lg leading-loose"
-                aria-invalid={getErrorMessage("description") ? true : undefined}
-                aria-errormessage={getErrorMessage(
-                  "description",
-                  "description-error",
-                )}
-              />
-            </label>
-          </div>
-          <button
-            type="submit"
-            className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
-          >
-            Save
-          </button>
+          <Input
+            label="Description"
+            ref={descriptionRef}
+            defaultValue={data.post.description ?? ""}
+            name="description"
+            invalid={!!getErrorMessage("description")}
+            errorMessage={getErrorMessage("description", "description-error")}
+          />
+
+          <Button label="Save" type="submit" />
         </Form>
       ) : (
         <div>
           <h3 className="text-2xl font-bold">{data.post.title}</h3>
           <p className="py-6">{data.post.description}</p>
-          <button onClick={() => setEditMode(true)}>Edit</button>
-          <hr className="my-4" />
-          <Form method="post">
-            <input value="delete" name="request-type" readOnly hidden />
-            <button
-              type="submit"
-              className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
-            >
-              Delete
-            </button>
-          </Form>
+          <div className="flex space-x-4">
+            <Button
+              label="Edit"
+              type="button"
+              onClick={() => setEditMode(true)}
+            />
+            <hr className="my-4" />
+            <Form method="post">
+              <input value="delete" name="request-type" readOnly hidden />
+              <Button label="Delete" type="submit" />
+            </Form>
+          </div>
           <hr className="my-4" />
           <h4 className="text-xl font-bold">Comments</h4>
           <div className="space-y-4">
@@ -238,12 +222,7 @@ export default function PostDetailsPage() {
                 />
               </label>
             </div>
-            <button
-              type="submit"
-              className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
-            >
-              Add Comment
-            </button>
+            <Button label="Add comment" type="submit" />
           </Form>
         </div>
       )}

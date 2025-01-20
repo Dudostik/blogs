@@ -9,10 +9,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
   const postListItems = await getPostListItems({ userId });
   console.log(postListItems);
-  return new Response(JSON.stringify({ postListItems: postListItems }), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
+  return { postListItems };
 };
 
 export default function PostsPage() {

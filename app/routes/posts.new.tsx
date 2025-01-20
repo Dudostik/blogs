@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 
 import { createPost } from "~/models/post.server";
 import { requireUserId } from "~/session.server";
+import { Button } from "~/ui/controls/button";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const userId = await requireUserId(request);
@@ -14,16 +15,22 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const description = formData.get("body");
 
   if (typeof title !== "string" || title.length === 0) {
-    return new Response(
-      JSON.stringify({ errors: { body: null, title: "Title is required" } }),
-      { status: 400, headers: { "Content-Type": "application/json" } },
+    return handleErrorResponse(
+      {
+        title: "Title is required",
+        body: null,
+      },
+      400,
     );
   }
 
   if (typeof description !== "string" || description.length === 0) {
-    return new Response(
-      JSON.stringify({ errors: { body: "Body is required", title: null } }),
-      { status: 400, headers: { "Content-Type": "application/json" } },
+    return handleErrorResponse(
+      {
+        title: null,
+        body: "Body is required",
+      },
+      400,
     );
   }
 
@@ -38,10 +45,8 @@ export default function NewPostPage() {
   const bodyRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (actionData?.errors?.title) {
-      titleRef.current?.focus();
-    } else if (actionData?.errors?.body) {
-      bodyRef.current?.focus();
+    if (actionData) {
+      focusOnErrorField(actionData, titleRef, bodyRef);
     }
   }, [actionData]);
 
@@ -97,12 +102,7 @@ export default function NewPostPage() {
       </div>
 
       <div className="text-right">
-        <button
-          type="submit"
-          className="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 focus:bg-blue-400"
-        >
-          Save
-        </button>
+        <Button label="Save" type="submit" />
       </div>
     </Form>
   );

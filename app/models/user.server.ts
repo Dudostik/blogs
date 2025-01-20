@@ -13,12 +13,13 @@ export async function getUserByEmail(email: User["email"]) {
   return prisma.user.findUnique({ where: { email } });
 }
 
-export async function createUser(email: User["email"], password: string) {
+export async function createUser(email: User["email"], password: string, name: string) {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   return prisma.user.create({
     data: {
       email,
+      name,
       password: {
         create: {
           hash: hashedPassword,
@@ -60,4 +61,37 @@ export async function verifyLogin(
   const { password: _password, ...userWithoutPassword } = userWithPassword;
 
   return userWithoutPassword;
+}
+
+export async function updateUserName(id: User["id"], name: string) {
+  return prisma.user.update({
+    where: { id },
+    data: { name },
+  });
+}
+
+export async function updateUserPassword(id: User["id"], oldPassword: string, newPassword: string) {
+  const userWithPassword = await prisma.user.findUnique({
+    where: { id },
+    include: { password: true },
+  });
+
+  if (!userWithPassword || !userWithPassword.password) {
+    throw new Error("User or password not found");
+  }
+
+  const isValid = await bcrypt.compare(oldPassword, userWithPassword.password.hash);
+
+  if (!isValid) {
+    return false;
+  }
+
+  const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+  await prisma.password.update({
+    where: { userId: id },
+    data: { hash: hashedNewPassword },
+  });
+
+  return true;
 }
