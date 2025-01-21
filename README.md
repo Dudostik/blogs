@@ -45,15 +45,15 @@ $ npm run dev
 ***
 ### Структура проекта
 
-/app
-  /models
-  /routes
-  /ui
-    /controls
-    /popover
-  /cypress
-  /prisma
-    /migrations
+- /app
+  - /models
+  - /routes
+  - /ui
+    - /controls
+    - /popover
+  - /cypress
+  - /prisma
+    - /migrations
 ***
 ### Технологии
 
