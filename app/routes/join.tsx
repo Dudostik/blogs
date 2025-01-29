@@ -12,6 +12,8 @@ import { createUserSession, getUserId } from "~/session.server";
 import { Button } from "~/ui/controls/button";
 import { safeRedirect, validateEmail } from "~/utils";
 
+import { handleErrorResponse } from "./errorHandler";
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await getUserId(request);
   if (userId) return redirect("/");

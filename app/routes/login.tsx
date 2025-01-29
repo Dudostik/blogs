@@ -13,6 +13,8 @@ import { Button } from "~/ui/controls/button";
 import { Popover } from "~/ui/popover/popover";
 import { safeRedirect, validateEmail } from "~/utils";
 
+import { handleErrorResponse } from "./errorHandler";
+
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const userId = await getUserId(request);
   if (userId) return redirect("/");

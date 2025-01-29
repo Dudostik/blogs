@@ -1,4 +1,4 @@
-const handleErrorResponse = (
+export const handleErrorResponse = (
   errors: Record<string | number | symbol, unknown>,
   status: number,
 ) => {

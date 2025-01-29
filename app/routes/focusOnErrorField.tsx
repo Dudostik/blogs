@@ -1,4 +1,4 @@
-const focusOnErrorField = (
+export const focusOnErrorField = (
   actionData: any,
   titleRef: React.RefObject<HTMLInputElement>,
   bodyRef: React.RefObject<HTMLTextAreaElement>,

@@ -16,6 +16,8 @@ import { requireUserId } from "~/session.server";
 import { Input } from "~/ui";
 import { Button } from "~/ui/controls/button";
 
+import { handleErrorResponse } from "./errorHandler";
+
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const userId = await requireUserId(request);
   invariant(params.postId, "postId not found");
@@ -53,7 +55,7 @@ export const action = async ({ params, request }: ActionFunctionArgs) => {
     }
 
     try {
-      const comment = await createComment({
+      await createComment({
         postId: params.postId,
         userId,
         content,
