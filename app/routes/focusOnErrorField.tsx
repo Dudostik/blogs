@@ -1,4 +1,5 @@
 export const focusOnErrorField = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   actionData: any,
   titleRef: React.RefObject<HTMLInputElement>,
   bodyRef: React.RefObject<HTMLTextAreaElement>,
